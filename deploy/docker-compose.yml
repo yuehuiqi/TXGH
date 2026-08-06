@@ -1,0 +1,81 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# THGH 服务端 + MySQL 一键拉起
+#
+#   cd deploy && docker compose up -d --build
+#
+# 客户端是 Qt 桌面程序，不在容器里 —— 它连宿主机的 9000 端口即可。
+#
+# ── 关于凭据 ──────────────────────────────────────────────────────────────
+# 这里的密码是**开发默认值**，从 .env 读取（见同目录 .env.example）。
+# 生产部署必须换掉，并且用 docker secret 或外部密钥管理，
+# 不要把真实密码提交进仓库。
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: thgh-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-thgh_root_dev}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-thgh}
+      MYSQL_USER: ${MYSQL_USER:-thgh}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-thgh_dev_2026}
+    # utf8mb4：库里存的是中文场景名、告警文本。
+    # MySQL 的 "utf8" 是每字符最多 3 字节的残缺实现，存不下 emoji 和部分汉字，
+    # 必须显式用 utf8mb4。
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # 建表脚本。这个目录里的 .sql 只在**数据卷为空时**执行一次，
+      # 已有数据的卷不会被重跑，所以不用担心它清库。
+      - ../server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      # 演示数据。同样只在数据卷为空时执行一次 ——
+      # 起容器后打开客户端就能直接看到一个完整场景，不用先手工画一遍。
+      - ../server/db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      # 用 mysqladmin ping 而不是 "端口通了"：容器端口在 MySQL 完成初始化
+      # 之前就已经监听了，只测端口会让服务端过早启动然后连接失败。
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1",
+             "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-thgh_root_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    # 不对外暴露端口：数据库只该被同网络的服务端访问。
+    # 调试时可以临时加 ports: ["3306:3306"]，但别留在提交里。
+    networks: [thgh-net]
+
+  server:
+    build:
+      # 上下文是仓库根目录 —— Dockerfile 里要 COPY protocol/ 和 server/，
+      # 上下文设成 deploy/ 的话它们就在上下文之外，COPY 会失败。
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: thgh-server:latest
+    container_name: thgh-server
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        # service_healthy 而不是 service_started：
+        # MySQL 首次启动要建库建表，几秒到几十秒不等。
+        # 只等 started 的话服务端会在库还没好时就去连，连接池初始化失败。
+        condition: service_healthy
+    environment:
+      THGH_DB_HOST: mysql
+      THGH_DB_PORT: "3306"
+      THGH_DB_USER: ${MYSQL_USER:-thgh}
+      THGH_DB_PASSWORD: ${MYSQL_PASSWORD:-thgh_dev_2026}
+      THGH_DB_NAME: ${MYSQL_DATABASE:-thgh}
+    ports:
+      - "${THGH_PORT:-9000}:9000"
+    networks: [thgh-net]
+
+volumes:
+  mysql-data:
+
+networks:
+  thgh-net:
+    driver: bridge

@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/style/style.qss</file>
+        <file>resources/icon/arrow-down.svg</file>
+        <file>resources/icon/arrow-down-disabled.svg</file>
+        <file>resources/icon/arrow-up.svg</file>
+        <file>resources/icon/arrow-up-disabled.svg</file>
+        <file>resources/icon/check.svg</file>
+        <file>resources/icon/lianlu.svg</file>
+        <file>resources/icon/liuliang.svg</file>
+        <file>resources/icon/logo.svg</file>
+        <file>resources/icon/node_offline.svg</file>
+        <file>resources/icon/node_online.svg</file>
+        <file>resources/style/style_light.qss</file>
+        <file>resources/icon/btnClose.svg</file>
+        <file>resources/icon/btnMax.svg</file>
+        <file>resources/icon/btnMin.svg</file>
+        <file>resources/icon/node_2zk.svg</file>
+        <file>resources/icon/node_rd_ruduan.svg</file>
+        <file>resources/icon/node_rk_fenkong.svg</file>
+        <file>resources/icon/node_zk_zhukong.svg</file>
+    </qresource>
+</RCC>

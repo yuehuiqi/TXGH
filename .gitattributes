@@ -1,0 +1,43 @@
+# 本仓库同时在 Windows（Qt 客户端）和 Linux（C++ 服务端）上开发，
+# 不统一换行符的话，两边各自 checkout 后会把整个文件标记为已修改，
+# diff 全是噪音、review 无法进行。
+#
+# 策略：仓库内一律存 LF，检出时由 Git 按平台处理。
+
+* text=auto eol=lf
+
+# 明确指定文本类型，避免 Git 误判
+*.c      text
+*.cpp    text
+*.h      text
+*.hpp    text
+*.cmake  text
+*.txt    text
+*.md     text
+*.yml    text
+*.yaml   text
+*.json   text
+*.qrc    text
+*.ui     text
+*.pri    text
+*.pro    text
+*.py     text
+*.sh     text eol=lf
+
+# Windows 批处理必须是 CRLF，否则 cmd 解析异常
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+# 二进制：禁止任何换行符转换，否则文件会被破坏
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.ico    binary
+*.svg    text
+*.pdf    binary
+*.docx   binary
+*.a      binary
+*.lib    binary
+*.dll    binary
+*.so     binary
+*.exe    binary

@@ -1,0 +1,919 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogNode</class>
+ <widget class="QDialog" name="DialogNode">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>798</width>
+    <height>623</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_15">
+   <property name="leftMargin">
+    <number>1</number>
+   </property>
+   <property name="topMargin">
+    <number>10</number>
+   </property>
+   <property name="rightMargin">
+    <number>1</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
+   </property>
+   <property name="spacing">
+    <number>1</number>
+   </property>
+   <item row="2" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="tabBasicAttr">
+      <attribute name="title">
+       <string>基础属性</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QWidget" name="wgtBasicTabContent" native="true">
+         <layout class="QGridLayout" name="gridLayout_3">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QWidget" name="wgtBasicInfo" native="true">
+            <layout class="QGridLayout" name="gridLayout">
+             <property name="leftMargin">
+              <number>50</number>
+             </property>
+             <property name="topMargin">
+              <number>9</number>
+             </property>
+             <property name="rightMargin">
+              <number>100</number>
+             </property>
+             <property name="bottomMargin">
+              <number>9</number>
+             </property>
+             <property name="spacing">
+              <number>15</number>
+             </property>
+             <item row="2" column="4">
+              <widget class="QDoubleSpinBox" name="dsbNodeAltitude">
+               <property name="suffix">
+                <string> m</string>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>-500.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>10000.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QComboBox" name="cmbNodeType">
+               <item>
+                <property name="text">
+                 <string>支线</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>干线</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="leNodeName"/>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="lblNodeStatus">
+               <property name="text">
+                <string>状态</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="lblNodeType">
+               <property name="text">
+                <string>节点类型</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QLabel" name="lblNodeLatitude">
+               <property name="text">
+                <string>纬度</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QComboBox" name="cmbNodeStatus">
+               <item>
+                <property name="text">
+                 <string>在线</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>离线</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>告警</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="3" column="4">
+              <widget class="QDoubleSpinBox" name="dsbInterferenceDb">
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="minimum">
+                <double>-100.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>30.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QLabel" name="lblDB">
+               <property name="text">
+                <string>干扰功率(dB)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="3">
+              <widget class="QLabel" name="lblNodeAltitude">
+               <property name="text">
+                <string>海拔</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <widget class="QDoubleSpinBox" name="dsbNodeLongitude">
+               <property name="suffix">
+                <string> °</string>
+               </property>
+               <property name="decimals">
+                <number>6</number>
+               </property>
+               <property name="minimum">
+                <double>-180.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>180.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>116.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="lblNodeName">
+               <property name="text">
+                <string>节点名称</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="leNodeId"/>
+             </item>
+             <item row="1" column="4">
+              <widget class="QDoubleSpinBox" name="dsbNodeLatitude">
+               <property name="suffix">
+                <string> °</string>
+               </property>
+               <property name="decimals">
+                <number>6</number>
+               </property>
+               <property name="minimum">
+                <double>-90.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>90.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>39.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLabel" name="lblNodeLongitude">
+               <property name="text">
+                <string>经度</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="lblNodeId">
+               <property name="text">
+                <string>节点ID</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2" rowspan="4">
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Expanding</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>100</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabDeviceManage">
+      <attribute name="title">
+       <string>设备管理</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_12">
+       <item row="0" column="0">
+        <widget class="QWidget" name="wgtDeviceManagePanel" native="true">
+         <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0,0,0">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QWidget" name="wgtDeviceList" native="true">
+            <property name="maximumSize">
+             <size>
+              <width>200</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_8">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <item row="3" column="0" colspan="2">
+              <widget class="QListWidget" name="listDeviceInstances"/>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="lblDeviceTypeHint">
+               <property name="text">
+                <string>类型</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="cmbDeviceType"/>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QPushButton" name="btnAddDevice">
+               <property name="text">
+                <string>添加设备</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="2">
+              <widget class="QPushButton" name="btnDeleteDevice">
+               <property name="text">
+                <string>删除设备</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="2">
+           <widget class="QWidget" name="wgtDeviceCommon" native="true">
+            <property name="styleSheet">
+             <string notr="true">#wgtDeviceCommon{background-color: rgb(245, 247, 250);}</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="8" column="0">
+              <widget class="QLabel" name="lblProcessingDelay">
+               <property name="text">
+                <string>交换机固定时延</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QComboBox" name="cmbDeviceCategory"/>
+             </item>
+             <item row="3" column="1">
+              <widget class="QDoubleSpinBox" name="dsbDeviceHeight"/>
+             </item>
+             <item row="8" column="1">
+              <widget class="QDoubleSpinBox" name="dsbProcessingDelay"/>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="lblDeviceName">
+               <property name="text">
+                <string>设备名称</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="lblDeviceCategory">
+               <property name="text">
+                <string>传输类型</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="lblDeviceRole">
+               <property name="text">
+                <string>设备角色</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>最大连接数</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="lblMaxBandwidth">
+               <property name="text">
+                <string>物理层速率上限</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="leDeviceName"/>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="lblBackplaneBandwidth">
+               <property name="text">
+                <string>交换机背板带宽</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QComboBox" name="cmbDeviceRole"/>
+             </item>
+             <item row="6" column="1">
+              <widget class="QDoubleSpinBox" name="dsbMaxBandwidth"/>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="lblDeviceHeight">
+               <property name="text">
+                <string>设备高度</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1">
+              <widget class="QDoubleSpinBox" name="dsbBackplaneBandwidth"/>
+             </item>
+             <item row="2" column="1">
+              <widget class="QSpinBox" name="sbMaxDevice"/>
+             </item>
+             <item row="1" column="1">
+              <widget class="QComboBox" name="cmbInputOutput">
+               <item>
+                <property name="text">
+                 <string>输入</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>输出</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>输入输出</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QStackedWidget" name="stackedWidget">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <widget class="QWidget" name="pageWireless">
+             <layout class="QGridLayout" name="gridLayout_9">
+              <item row="0" column="0">
+               <widget class="QWidget" name="wgtWirelessParams" native="true">
+                <property name="styleSheet">
+                 <string notr="true">#wgtWirelessParams{background-color: rgb(245, 247, 250);}</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_6" columnstretch="1,1" columnminimumwidth="1,1">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="lblFreqHz">
+                   <property name="text">
+                    <string>工作频率</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbFreqHz">
+                   <property name="suffix">
+                    <string> Hz</string>
+                   </property>
+                   <property name="minimum">
+                    <double>1000000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>100000000000.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>3000000000.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="lblTxPower">
+                   <property name="text">
+                    <string>发射功率</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbTxPowerDbm">
+                   <property name="suffix">
+                    <string>  dBm</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="minimum">
+                    <double>-50.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>60.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>30.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="lblRxSensitivity">
+                   <property name="text">
+                    <string>接收灵敏度</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbRxSensitivity">
+                   <property name="suffix">
+                    <string>  dBm</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="minimum">
+                    <double>-150.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>0.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>-90.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="lblTxAntennaGain">
+                   <property name="text">
+                    <string>发射天线增益</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbTxAntennaGain">
+                   <property name="suffix">
+                    <string>  dBi</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="minimum">
+                    <double>-10.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>60.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="lblRxAntennaGain">
+                   <property name="text">
+                    <string>接收天线增益</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbRxAntennaGain">
+                   <property name="suffix">
+                    <string>  dBi</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="minimum">
+                    <double>-10.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>60.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="lblNoiseFigure">
+                   <property name="text">
+                    <string>噪声系数</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbNoiseFigure">
+                   <property name="suffix">
+                    <string>  dB</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <double>15.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>7.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="lblSnrThreshold">
+                   <property name="text">
+                    <string>SNR 阈值</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbSnrThreshold">
+                   <property name="suffix">
+                    <string>  dB</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <double>50.000000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>10.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QLabel" name="lblPathLossExp">
+                   <property name="text">
+                    <string>路径损耗指数</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbPathLossExp">
+                   <property name="minimum">
+                    <double>2.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>5.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QLabel" name="lblExtraLoss">
+                   <property name="text">
+                    <string>额外损耗</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbExtraLoss">
+                   <property name="suffix">
+                    <string>  dB</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <double>100.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="pageWired">
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="0" column="0">
+               <widget class="QWidget" name="wgtWiredParams" native="true">
+                <property name="styleSheet">
+                 <string notr="true">#wgtWiredParams{background-color: rgb(245, 247, 250);}</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_11">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="lblCommProtocol">
+                   <property name="text">
+                    <string>通信体制</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="leDeviceType"/>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="leCommProtocol"/>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="lblFiberAttenuation">
+                   <property name="text">
+                    <string>光纤衰减系数</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="lblWiredRxSensitivity">
+                   <property name="text">
+                    <string>光接收灵敏度</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="lblDeviceType">
+                   <property name="text">
+                    <string>设备类型</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="lblWiredTxPower">
+                   <property name="text">
+                    <string>光发射功率</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="lblConnectorLoss">
+                   <property name="text">
+                    <string>接头/熔接总损耗</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbWiredTxPower"/>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbWiredRxSensitivity"/>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbFiberAttenuation"/>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QDoubleSpinBox" name="dsbConnectorLoss"/>
+                 </item>
+                 <item row="6" column="0" colspan="2">
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabInternalConn">
+      <attribute name="title">
+       <string>内部连接</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_14">
+       <item row="0" column="0">
+        <widget class="QWidget" name="wgtConnPanel" native="true">
+         <layout class="QGridLayout" name="gridLayout_13">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QTableWidget" name="tableDeviceMatrix"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>拓扑视图</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_16">
+       <item row="0" column="0">
+        <widget class="QGraphicsView" name="gvDeviceTopology"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="lblDlgNodeTitle">
+     <property name="text">
+      <string>节点信息配置</string>
+     </property>
+     <property name="styleType" stdset="0">
+      <string>h1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QWidget" name="wgtTemplateBar" native="true">
+     <layout class="QGridLayout" name="gridLayout_7" columnstretch="1,1,1,1,0,0,0">
+      <item row="0" column="1">
+       <widget class="QComboBox" name="cmbNodeTemplate"/>
+      </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="btnSaveNodeTemplate">
+        <property name="text">
+         <string>保存节点为模板</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <widget class="QPushButton" name="btnSaveNode">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>保存节点</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="lblNodeTemplate">
+        <property name="text">
+         <string>从模板导入</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QPushButton" name="btnCancel">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>取消</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>80</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
