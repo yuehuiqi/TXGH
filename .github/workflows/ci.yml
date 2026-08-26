@@ -1,0 +1,180 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# THGH CI
+#
+# 四个作业，覆盖"构建能过 / 测试能过 / 内存干净 / 交付物能产出"四件事：
+#
+#   test      常规构建 + 175 个单测（带真实 MySQL，14 个数据库用例不会被跳过）
+#   sanitize  ASan / TSan 两种构建各跑一遍全量单测
+#   valgrind  memcheck 扫全部测试二进制
+#   docker    多阶段镜像构建（构建阶段内含 ctest，测试不过镜像产不出来）
+#
+# ── 两个容易踩的坑，已在下面处理 ──────────────────────────────────────────
+#
+# 1. **不带数据库凭据时 ctest 会静默跳过 14 个 MySQL 用例，却仍然报"全部通过"。**
+#    所以每个跑测试的作业都显式传 THGH_TEST_DB_*，并且在测试后**断言跳过数为 0**。
+#    ⚠️ 断言要匹配结果标记 `***Skipped` 而不是 `Skipped`——
+#    有个测试名里就带 Skipped 这个词（TimerQueue.StaleHeapEntriesAreSkippedByNextTimeout），
+#    用 `grep -c Skipped` 会误报 2 条。
+#
+# 2. **TSan 与 Ubuntu 24.04 的 6.8 内核 ASLR 冲突**：默认 vm.mmap_rnd_bits=32
+#    超出 TSan 预期的地址空间布局，二进制一启动就
+#    "FATAL: ThreadSanitizer: unexpected memory mapping"。
+#    顶层 CMakeLists 已用 setarch -R 逐进程关 ASLR 规避，这里确保 util-linux 存在。
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  # 与 scripts/thgh.sh 保持同一组开发默认值
+  THGH_TEST_DB_HOST: 127.0.0.1
+  THGH_TEST_DB_PORT: "3306"
+  THGH_TEST_DB_USER: thgh
+  THGH_TEST_DB_PASSWORD: thgh_dev_2026
+  THGH_TEST_DB_NAME: thgh
+
+jobs:
+  test:
+    name: 构建与单元测试
+    runs-on: ubuntu-24.04
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: thgh_root_dev
+          MYSQL_DATABASE: thgh
+          MYSQL_USER: thgh
+          MYSQL_PASSWORD: thgh_dev_2026
+        ports: ["3306:3306"]
+        # 用 mysqladmin ping 而不是等端口：容器端口在 MySQL 完成初始化之前
+        # 就已经监听了，只等端口会让后续步骤在库还没好时就去连。
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pthgh_root_dev"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build g++ libmysqlclient-dev libgtest-dev mysql-client
+
+      - name: 建表
+        run: mysql -h 127.0.0.1 -P 3306 -u thgh -pthgh_dev_2026 thgh < server/db/schema.sql
+
+      - name: 配置与构建
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DTHGH_BUILD_SERVER=ON -DTHGH_BUILD_CLIENT=OFF -DTHGH_BUILD_TESTS=ON
+          cmake --build build -j"$(nproc)"
+
+      - name: 跑单测
+        run: ctest --test-dir build --output-on-failure
+
+      - name: ★ 断言没有用例被静默跳过
+        run: |
+          skipped=$(ctest --test-dir build 2>&1 | grep -c '\*\*\*Skipped' || true)
+          echo "被跳过的用例数：${skipped}"
+          if [ "${skipped}" != "0" ]; then
+            echo "::error::有 ${skipped} 个用例被跳过——多半是数据库凭据没传进来。"
+            echo "不带凭据时 ctest 仍会报『全部通过』，所以这个断言不能省。"
+            exit 1
+          fi
+
+  sanitize:
+    name: Sanitizer (${{ matrix.san }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        san: [address, thread]
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: thgh_root_dev
+          MYSQL_DATABASE: thgh
+          MYSQL_USER: thgh
+          MYSQL_PASSWORD: thgh_dev_2026
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pthgh_root_dev"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build g++ libmysqlclient-dev libgtest-dev mysql-client util-linux
+
+      - name: 建表
+        run: mysql -h 127.0.0.1 -P 3306 -u thgh -pthgh_dev_2026 thgh < server/db/schema.sql
+
+      - name: 构建并测试
+        run: |
+          if [ "${{ matrix.san }}" = "address" ]; then FLAG=-DTHGH_SANITIZE_ADDRESS=ON; else FLAG=-DTHGH_SANITIZE_THREAD=ON; fi
+          cmake -S . -B build-san -G Ninja -DCMAKE_BUILD_TYPE=Debug "$FLAG" \
+            -DTHGH_BUILD_SERVER=ON -DTHGH_BUILD_CLIENT=OFF -DTHGH_BUILD_TESTS=ON
+          cmake --build build-san -j"$(nproc)"
+          ctest --test-dir build-san --output-on-failure
+
+  valgrind:
+    name: valgrind memcheck
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build g++ libmysqlclient-dev libgtest-dev valgrind
+
+      - name: 构建
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DTHGH_BUILD_SERVER=ON -DTHGH_BUILD_CLIENT=OFF -DTHGH_BUILD_TESTS=ON
+          cmake --build build -j"$(nproc)"
+
+      - name: ★ 扫全部测试二进制
+        run: |
+          # ⚠️ 这一步以前踩过坑：通配符与产物路径不匹配时，for 循环一个文件都没匹配上，
+          #    脚本仍然返回 0，作业照样是绿的 —— 一个"从不失败的检查"等于没有检查。
+          #    所以这里先数一遍，数量为 0 直接失败。
+          #    产物路径由顶层 CMakeLists 的 CMAKE_RUNTIME_OUTPUT_DIRECTORY 决定（build/bin）。
+          bins=$(find build/bin -maxdepth 1 -type f -name 'test_*' | sort)
+          count=$(echo "$bins" | grep -c . || true)
+          echo "找到 ${count} 个测试二进制"
+          if [ "${count}" -eq 0 ]; then
+            echo "::error::没有匹配到任何测试二进制——通配符或产物路径不对。"
+            echo "这正是那个『绿了七次但从没真跑过』的失败模式，不能让它静默通过。"
+            exit 1
+          fi
+          for b in $bins; do
+            echo "── ${b} ──"
+            # 数据库用例不带凭据会自行跳过，valgrind 只关心内存问题，这里不传凭据
+            valgrind --error-exitcode=1 --leak-check=full --errors-for-leak-kinds=definite \
+                     --gen-suppressions=no "$b"
+          done
+
+  docker:
+    name: Docker 多阶段构建
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: 构建镜像（构建阶段内含 ctest）
+        run: docker build -f deploy/Dockerfile -t thgh-server:ci .
+      - name: 报告镜像体积
+        run: docker images thgh-server:ci --format '镜像体积：{{.Size}}'
