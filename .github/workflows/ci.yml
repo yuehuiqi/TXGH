@@ -72,7 +72,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cmake ninja-build g++ libmysqlclient-dev libgtest-dev mysql-client
+            build-essential cmake ninja-build g++ \
+            libmysqlclient-dev nlohmann-json3-dev libgtest-dev libgmock-dev \
+            mysql-client
 
       - name: 建表
         run: mysql -h 127.0.0.1 -P 3306 -u thgh -pthgh_dev_2026 thgh < server/db/schema.sql
@@ -124,7 +126,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cmake ninja-build g++ libmysqlclient-dev libgtest-dev mysql-client util-linux
+            build-essential cmake ninja-build g++ \
+            libmysqlclient-dev nlohmann-json3-dev libgtest-dev libgmock-dev \
+            mysql-client util-linux
 
       - name: 建表
         run: mysql -h 127.0.0.1 -P 3306 -u thgh -pthgh_dev_2026 thgh < server/db/schema.sql
@@ -147,7 +151,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cmake ninja-build g++ libmysqlclient-dev libgtest-dev valgrind
+            build-essential cmake ninja-build g++ \
+            libmysqlclient-dev nlohmann-json3-dev libgtest-dev libgmock-dev \
+            valgrind
 
       - name: 构建
         run: |
@@ -157,16 +163,16 @@ jobs:
 
       - name: ★ 扫全部测试二进制
         run: |
-          # ⚠️ 这一步以前踩过坑：通配符与产物路径不匹配时，for 循环一个文件都没匹配上，
-          #    脚本仍然返回 0，作业照样是绿的 —— 一个"从不失败的检查"等于没有检查。
-          #    所以这里先数一遍，数量为 0 直接失败。
+          # ⚠️ 通配符与产物路径不匹配时，for 循环一个文件都匹配不上、
+          #    脚本仍然返回 0，作业照样是绿的 —— 一个"从不失败的检查"等于没有检查，
+          #    而且更危险，因为它给了虚假的安全感。所以先数一遍，数量为 0 直接失败。
           #    产物路径由顶层 CMakeLists 的 CMAKE_RUNTIME_OUTPUT_DIRECTORY 决定（build/bin）。
           bins=$(find build/bin -maxdepth 1 -type f -name 'test_*' | sort)
           count=$(echo "$bins" | grep -c . || true)
           echo "找到 ${count} 个测试二进制"
           if [ "${count}" -eq 0 ]; then
             echo "::error::没有匹配到任何测试二进制——通配符或产物路径不对。"
-            echo "这正是那个『绿了七次但从没真跑过』的失败模式，不能让它静默通过。"
+            echo "这类静默空转必须让作业失败，不能让它伪装成『通过了』。"
             exit 1
           fi
           for b in $bins; do
