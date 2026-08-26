@@ -19,7 +19,7 @@ FramelessDialog::FramelessDialog(QWidget *parent, Qt::WindowFlags f)
 // 由 Windows 系统自身完成拖拽与拉伸（体验最好，支持窗口贴边等系统特性）。
 // ─────────────────────────────────────────────────────────────────────────────
 bool FramelessDialog::nativeEvent(const QByteArray &eventType,
-                                  void *message, long *result)
+                                  void *message, qintptr *result)
 {
 #ifdef Q_OS_WIN
     if (eventType == "windows_generic_MSG") {
@@ -103,7 +103,7 @@ void FramelessDialog::mousePressEvent(QMouseEvent *e)
 
     if (m_resizeEdges != EdgeNone) {
         // 进入拉伸
-        m_pressGlobal = e->globalPos();
+        m_pressGlobal = e->globalPosition().toPoint();
         m_pressGeom   = geometry();
         e->accept();
         return;
@@ -112,7 +112,7 @@ void FramelessDialog::mousePressEvent(QMouseEvent *e)
     if (pos.y() < kCaptionHeight) {
         // 进入拖拽（仅顶部 40px 内）
         m_dragging    = true;
-        m_pressGlobal = e->globalPos();
+        m_pressGlobal = e->globalPosition().toPoint();
         m_pressGeom   = geometry();
         e->accept();
         return;
@@ -132,7 +132,7 @@ void FramelessDialog::mouseMoveEvent(QMouseEvent *e)
 
     // 正在拉伸
     if (m_resizeEdges != EdgeNone) {
-        QPoint delta = e->globalPos() - m_pressGlobal;
+        QPoint delta = e->globalPosition().toPoint() - m_pressGlobal;
         QRect g      = m_pressGeom;
         const int minW = qMax(minimumWidth(),  80);
         const int minH = qMax(minimumHeight(), 60);
@@ -160,7 +160,7 @@ void FramelessDialog::mouseMoveEvent(QMouseEvent *e)
 
     // 正在拖拽
     if (m_dragging) {
-        QPoint delta = e->globalPos() - m_pressGlobal;
+        QPoint delta = e->globalPosition().toPoint() - m_pressGlobal;
         move(m_pressGeom.topLeft() + delta);
         e->accept();
         return;

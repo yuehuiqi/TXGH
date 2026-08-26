@@ -1228,7 +1228,8 @@ void TopoView::dropEvent(QDropEvent *e)
         QListWidgetItem *it = m_palette->currentItem();
         if (!it) { e->ignore(); return; }
         QString nodeType = it->data(Qt::UserRole).toString();
-        QPointF scenePos = mapToScene(e->pos());
+        // Qt6：QDropEvent 的坐标也改成浮点了，pos() 已弃用
+        QPointF scenePos = mapToScene(e->position().toPoint());
         double lon, lat;
         scenePosToLonLat(scenePos, lon, lat);
         emit requestAddNode(lon, lat, nodeType);
@@ -1241,7 +1242,9 @@ void TopoView::dropEvent(QDropEvent *e)
 // ─── 滚轮缩放 ───────────────────────────────────────────────────────────────
 void TopoView::wheelEvent(QWheelEvent *e)
 {
-    double factor = (e->delta() > 0) ? 1.15 : (1.0 / 1.15);
+    // Qt6 移除了 QWheelEvent::delta()（它只能表达单一方向的整数步进）。
+    // 改用 angleDelta()，返回 QPoint、单位是 1/8 度，y 分量是竖直滚动量。
+    double factor = (e->angleDelta().y() > 0) ? 1.15 : (1.0 / 1.15);
     scale(factor, factor);
     clampZoom();
     updateIconScale();

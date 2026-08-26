@@ -16,8 +16,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 5.12 REQUIRED COMPONENTS
-    Core Gui Widgets Sql Charts Network Svg OpenGL
+find_package(Qt6 6.2 REQUIRED COMPONENTS
+    Core Gui Widgets Sql Charts Network Svg OpenGL OpenGLWidgets
 )
 
 # ── 第三方：QtNodes 节点编辑器 ──────────────────────────────────────────────
@@ -89,13 +89,13 @@ target_link_libraries(TXGHClient PRIVATE
     # v3.0 新增 ack/progress 两种消息，重复的字面量更多了，这次把它收口。
     thgh_protocol
     qtnodes
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Widgets
-    Qt5::Sql
-    Qt5::Charts
-    Qt5::Network
-    Qt5::Svg
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::Sql
+    Qt6::Charts
+    Qt6::Network
+    Qt6::Svg
 )
 
 # AUTOUIC 生成的 ui_*.h 落在构建目录，源码里写的是 #include "ui_mainwindow.h"，

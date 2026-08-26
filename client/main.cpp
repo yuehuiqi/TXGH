@@ -82,9 +82,15 @@ int main(int argc, char *argv[])
     */
 #endif
 
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    //    //Qt 5.14+ 推荐设置缩放舍入策略（解决字体/控件边缘锯齿或错位）// 常用 Round 或 PassThrough
-    //    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Round);
+    // Qt6 起高 DPI 缩放**始终开启**，AA_EnableHighDpiScaling 已弃用且不再有任何效果，
+    // 所以这行删掉（留着只会产生弃用告警）。
+    //
+    // 需要控制的是**缩放因子的舍入策略**，这个在 Qt6 里仍然有效且必须在
+    // QApplication 构造之前设置。PassThrough 保留小数缩放（125% 就是 1.25），
+    // 相比默认的 Round（四舍五入到整数倍）在 125%/150% 这类常见 Windows 缩放下
+    // 布局更贴合设计稿，不会出现控件被撑开或字体错位。
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
+        Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
     QApplication a(argc, argv);
     a.installEventFilter(new FramelessMsgFilter(&a));
     QFile styleFile(":/resources/style/style_light.qss");

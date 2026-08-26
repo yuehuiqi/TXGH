@@ -406,7 +406,7 @@ public:
         f1.setPointSize(9); f1.setBold(true);
         painter->setFont(f1);
         painter->setPen(selected ? QColor("#1565C0") : QColor("#2C3E50"));
-        int typeWidth = painter->fontMetrics().width(typeStr);
+        int typeWidth = painter->fontMetrics().horizontalAdvance(typeStr);
         QString elidedLine1 = painter->fontMetrics().elidedText(line1, Qt::ElideRight, w - typeWidth - 8);
         painter->drawText(QRect(x, y1, w - typeWidth - 8, 20), Qt::AlignLeft | Qt::AlignVCenter, elidedLine1);
         painter->setPen(selected ? QColor("#1976D2") : QColor("#7F8C8D"));
@@ -416,7 +416,7 @@ public:
         f2.setPointSize(9);
         painter->setFont(f2);
         painter->setPen(selected ? QColor("#1976D2") : QColor("#718096"));
-        int delayWidth = painter->fontMetrics().width(delayStr);
+        int delayWidth = painter->fontMetrics().horizontalAdvance(delayStr);
         QString elidedLine2 = painter->fontMetrics().elidedText(line2, Qt::ElideRight, w - delayWidth - 8);
         painter->drawText(QRect(x, y2, w - delayWidth - 8, 18), Qt::AlignLeft | Qt::AlignVCenter, elidedLine2);
         painter->drawText(QRect(x, y2, w, 18), Qt::AlignRight | Qt::AlignVCenter, delayStr);
@@ -571,8 +571,34 @@ MainWindow::~MainWindow()
 //   直接报错退出对使用者太不友好，而单机模式本来就是它改造前的形态。
 //   状态栏会明确显示当前是哪一种模式，不会让人误以为改动已经同步到服务端。
 // ─────────────────────────────────────────────────────────────────────────────
+// 从环境变量解析服务端地址，未设置时保留成员的默认值（127.0.0.1:9000）。
+// 客户端跑在本地、服务端跑在云主机时，只需：
+//   set THGH_SERVER_HOST=1.2.3.4        （PowerShell: $env:THGH_SERVER_HOST="1.2.3.4"）
+// 不用改代码、不用重新编译。
+void MainWindow::resolveServerEndpoint()
+{
+    const QByteArray host = qgetenv("THGH_SERVER_HOST");
+    if (!host.isEmpty()) {
+        m_serverHost = QString::fromLocal8Bit(host).trimmed();
+    }
+    const QByteArray port = qgetenv("THGH_SERVER_PORT");
+    if (!port.isEmpty()) {
+        bool ok = false;
+        const uint v = QString::fromLatin1(port).trimmed().toUInt(&ok);
+        // 端口 0 是"由系统分配"的语义，作为连接目标没有意义，一并挡掉
+        if (ok && v > 0 && v < 65536) {
+            m_serverPort = static_cast<quint16>(v);
+        } else {
+            qWarning() << "[Data] THGH_SERVER_PORT 非法，忽略:" << port;
+        }
+    }
+    qDebug() << "[Data] 服务端地址:" << m_serverHost << m_serverPort;
+}
+
 void MainWindow::initDatabase()
 {
+    resolveServerEndpoint();
+
     m_localDb = new DbManager(this);
 
     // 先试远端
@@ -1139,7 +1165,9 @@ void MainWindow::refreshNodeTable(const QList<NodeInfo> &nodes)
         for (const QString &t : types) ui->cmbNodeTypeFilter->addItem(t);
 
         ui->cmbNodeStatusFilter->clear();
-        for (const QString &s : {"全部状态", "在线", "告警", "离线"})
+        // 用 QStringList 而不是 {const char*...}：后者会为每个元素临时构造一个
+        // QString，再把 const QString& 绑到这个临时量上（-Wrange-loop-construct）。
+        for (const QString &s : QStringList{"全部状态", "在线", "告警", "离线"})
             ui->cmbNodeStatusFilter->addItem(s);
 
         int ti = ui->cmbNodeTypeFilter->findText(prevType);
@@ -1983,7 +2011,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton &&
         ui->wgtHeader->geometry().contains(event->pos())) {
         m_isDragging   = true;
-        m_dragPosition = event->globalPos() - this->frameGeometry().topLeft();
+        m_dragPosition = event->globalPosition().toPoint() - this->frameGeometry().topLeft();
         event->accept();
     }
 }
@@ -1991,7 +2019,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_isDragging && (event->buttons() & Qt::LeftButton)) {
-        this->move(event->globalPos() - m_dragPosition);
+        this->move(event->globalPosition().toPoint() - m_dragPosition);
         event->accept();
     }
 }
@@ -2003,7 +2031,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 }
 
 bool MainWindow::nativeEvent(const QByteArray &eventType,
-                              void *message, long *result)
+                              void *message, qintptr *result)
 {
 #ifdef Q_OS_WIN
     if (eventType == "windows_generic_MSG") {
@@ -2434,7 +2462,9 @@ void MainWindow::exportTableToCsv(QTableView *table, const QString &title)
         return;
     }
     QTextStream out(&f);
-    out.setCodec("UTF-8");
+    // Qt6 移除了 setCodec（QTextCodec 已挪出 Core），改用 QStringConverter。
+    // Qt6 默认就是 UTF-8，显式写出来是为了把编码意图留在代码里。
+    out.setEncoding(QStringConverter::Utf8);
     out << "\xEF\xBB\xBF";  // UTF-8 BOM（Excel兼容）
 
     QAbstractItemModel *model = table->model();
@@ -2528,6 +2558,9 @@ void MainWindow::initWarnList()
 void MainWindow::initSimBridge()
 {
     m_simBridge = new SimBridge(this);
+    // 规划服务与数据访问是同一个服务端，用同一组地址；
+    // 否则会出现"数据走云端、规划还连本机"的割裂状态。
+    m_simBridge->setServer(m_serverHost, m_serverPort);
     connect(m_simBridge, &SimBridge::connected,
             this, &MainWindow::onSimBridgeConnected);
     connect(m_simBridge, &SimBridge::disconnected,

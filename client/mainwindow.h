@@ -37,8 +37,10 @@
 #include <QJsonObject>
 #include <functional>
 
+// Qt6 起 QtCharts 的类**不再放在 QtCharts 命名空间里**，
+// QT_CHARTS_USE_NAMESPACE / QT_CHARTS_BEGIN_NAMESPACE 这组宏一并被删除，
+// QChart / QChartView 等直接在全局命名空间。所以这里只保留 include。
 #include <QtCharts>
-QT_CHARTS_USE_NAMESPACE
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -98,6 +100,7 @@ public:
 
 private:
     // ── 初始化 ──────────────────────────────────────────────────────────────
+    void resolveServerEndpoint();  // 从 THGH_SERVER_HOST/PORT 读取服务端地址
     void initDatabase();
     void clearAndSeedDatabase();
     void initTopoView();
@@ -216,8 +219,10 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
+    // Qt6：第三个参数由 long* 改为 qintptr*
+    // （Windows 上 long 是 32 位、指针是 64 位，原签名装不下返回值）
     bool nativeEvent(const QByteArray &eventType,
-                     void *message, long *result) override;
+                     void *message, qintptr *result) override;
 
 private:
     Ui::MainWindow *ui;
@@ -226,6 +231,10 @@ private:
     //   回退到 m_localDb（直连数据库），保证演示和离线调试仍可用。
     // 服务端地址。数据通道与规划通道连的是同一个服务端，
     // 但各用一条连接（理由见 remotedatastore.h）。
+    // 服务端地址。默认本机，可用环境变量覆盖（见 mainwindow.cpp::resolveServerEndpoint）：
+    //   THGH_SERVER_HOST / THGH_SERVER_PORT
+    // 这么做是为了让"客户端在本地、服务端在云主机"这种常见部署不用改代码重编，
+    // 也和项目里数据库凭据用 THGH_DB_* 环境变量的约定保持一致。
     QString          m_serverHost = "127.0.0.1";
     quint16          m_serverPort = 9000;
 
