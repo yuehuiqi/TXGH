@@ -27,6 +27,14 @@
 #    超出 TSan 预期的地址空间布局，二进制一启动就
 #    "FATAL: ThreadSanitizer: unexpected memory mapping"。
 #    顶层 CMakeLists 已用 setarch -R 逐进程关 ASLR 规避，这里确保 util-linux 存在。
+#
+# 3. **THGH_TEST_DB_* 绝不能放在 workflow 顶层 env。**
+#    第二次推送时前 4 个作业都绿了、只有 valgrind 挂在扫描步骤 —— 因为顶层 env
+#    对每个作业生效，valgrind 作业也拿到了 THGH_TEST_DB_HOST，
+#    而 test_conn_pool.cpp 的跳过判断只看这个变量**存不存在**：
+#        bool dbConfigured() { return std::getenv("THGH_TEST_DB_HOST") != nullptr; }
+#    于是数据库用例不再跳过，去连一个根本没有 MySQL 的 3306，直接失败。
+#    正确做法：把 env 下沉到 test / sanitize 两个作业内部（它们才有 service）。
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: CI
@@ -38,18 +46,20 @@ on:
     branches: [main]
   workflow_dispatch:
 
-env:
-  # 与 scripts/thgh.sh 保持同一组开发默认值
-  THGH_TEST_DB_HOST: 127.0.0.1
-  THGH_TEST_DB_PORT: "3306"
-  THGH_TEST_DB_USER: thgh
-  THGH_TEST_DB_PASSWORD: thgh_dev_2026
-  THGH_TEST_DB_NAME: thgh
-
 jobs:
   test:
     name: 构建与单元测试
     runs-on: ubuntu-24.04
+    env:
+      # ⚠️ 这组变量**只能给带 MySQL service 的作业**。放在 workflow 顶层会连
+      #    valgrind 作业一起注入，而那个作业没有数据库——见文件头第 3 条。
+      # ⚠️ 变量名是 THGH_TEST_DB_DATABASE，不是 _NAME：
+      #    test_conn_pool.cpp 读的是 _DATABASE，写错了会静默回落到默认值。
+      THGH_TEST_DB_HOST: 127.0.0.1
+      THGH_TEST_DB_PORT: "3306"
+      THGH_TEST_DB_USER: thgh
+      THGH_TEST_DB_PASSWORD: thgh_dev_2026
+      THGH_TEST_DB_DATABASE: thgh
     services:
       mysql:
         image: mysql:8.0
@@ -106,6 +116,16 @@ jobs:
       fail-fast: false
       matrix:
         san: [address, thread]
+    env:
+      # ⚠️ 这组变量**只能给带 MySQL service 的作业**。放在 workflow 顶层会连
+      #    valgrind 作业一起注入，而那个作业没有数据库——见文件头第 3 条。
+      # ⚠️ 变量名是 THGH_TEST_DB_DATABASE，不是 _NAME：
+      #    test_conn_pool.cpp 读的是 _DATABASE，写错了会静默回落到默认值。
+      THGH_TEST_DB_HOST: 127.0.0.1
+      THGH_TEST_DB_PORT: "3306"
+      THGH_TEST_DB_USER: thgh
+      THGH_TEST_DB_PASSWORD: thgh_dev_2026
+      THGH_TEST_DB_DATABASE: thgh
     services:
       mysql:
         image: mysql:8.0
@@ -177,7 +197,8 @@ jobs:
           fi
           for b in $bins; do
             echo "── ${b} ──"
-            # 数据库用例不带凭据会自行跳过，valgrind 只关心内存问题，这里不传凭据
+            # 这个作业**故意不设 THGH_TEST_DB_***，数据库用例会自行 GTEST_SKIP。
+            # valgrind 只关心内存问题，没必要为它再挂一个 MySQL service。
             valgrind --error-exitcode=1 --leak-check=full --errors-for-leak-kinds=definite \
                      --gen-suppressions=no "$b"
           done
