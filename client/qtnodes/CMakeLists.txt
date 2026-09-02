@@ -31,10 +31,11 @@ target_include_directories(qtnodes PUBLIC
 target_compile_definitions(qtnodes PUBLIC NODE_EDITOR_STATIC)
 
 target_link_libraries(qtnodes PUBLIC
-    Qt5::Core
-    Qt5::Gui
-    Qt5::Widgets
-    Qt5::OpenGL
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Widgets
+    Qt6::OpenGL
+    Qt6::OpenGLWidgets
 )
 
 target_compile_features(qtnodes PUBLIC cxx_std_17)

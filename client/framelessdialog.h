@@ -25,8 +25,9 @@ public:
                              Qt::WindowFlags f = Qt::Dialog);
 
 protected:
+    // Qt6：第三个参数由 long* 改为 qintptr*，见 mainwindow.h 同名函数的注释
     bool nativeEvent(const QByteArray &eventType,
-                     void *message, long *result) override;
+                     void *message, qintptr *result) override;
 
     // 非 Windows 平台（或 Windows 客户区）下用 Qt 事件做拖拽/拉伸
     void mousePressEvent(QMouseEvent *e) override;

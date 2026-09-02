@@ -11,6 +11,10 @@
 
 class TableResizeEventFilter : public QObject
 {
+    // ★ 必须有 Q_OBJECT：下面的 connect 用了 Qt::UniqueConnection，
+    //   而 UniqueConnection **只支持成员函数指针**，不支持 lambda/仿函数。
+    //   要用成员函数指针做信号槽连接，这个类就得有元对象。
+    Q_OBJECT
 public:
     explicit TableResizeEventFilter(QTableView *tv) : QObject(tv), m_tv(tv), m_lastModel(nullptr) {
         tv->installEventFilter(this);
@@ -22,9 +26,21 @@ public:
 
     void connectModel(QAbstractItemModel *model) {
         if (!model) return;
-        connect(model, &QAbstractItemModel::modelReset, this, [this]() { triggerAdjust(); }, Qt::UniqueConnection);
-        connect(model, &QAbstractItemModel::rowsInserted, this, [this]() { triggerAdjust(); }, Qt::UniqueConnection);
-        connect(model, &QAbstractItemModel::layoutChanged, this, [this]() { triggerAdjust(); }, Qt::UniqueConnection);
+        // ⚠️ 这里原来把 lambda 和 Qt::UniqueConnection 一起用了。
+        //    Qt 文档明确写着 UniqueConnection **不能用于 lambda/仿函数**，
+        //    只能用于 QObject 子类的成员函数指针。
+        //    Qt5 下这是静默无效（连接照建，但去重不生效，模型换来换去会重复连）；
+        //    **Qt6 直接拒绝建立连接**并打印
+        //      "unique connections require a pointer to member function of a QObject subclass"
+        //    ——也就是说表格列宽在模型重置/插入行时根本不会再自适应了，
+        //    而且没有任何报错指向业务代码，只有一行 qt.core.qobject.connect 警告。
+        //    改成成员函数指针后，UniqueConnection 才真正生效。
+        connect(model, &QAbstractItemModel::modelReset,
+                this, &TableResizeEventFilter::triggerAdjust, Qt::UniqueConnection);
+        connect(model, &QAbstractItemModel::rowsInserted,
+                this, &TableResizeEventFilter::triggerAdjust, Qt::UniqueConnection);
+        connect(model, &QAbstractItemModel::layoutChanged,
+                this, &TableResizeEventFilter::triggerAdjust, Qt::UniqueConnection);
     }
 
 protected:
@@ -48,11 +64,16 @@ protected:
         return QObject::eventFilter(obj, event);
     }
 
-private:
+public slots:
+    // 作为槽被三个信号连接。三个信号的参数各不相同
+    // （rowsInserted 带 3 个参数、layoutChanged 带 2 个），
+    // 槽的参数比信号少是允许的，多出来的会被丢弃。
     void triggerAdjust()
     {
         QTimer::singleShot(0, this, [this]() { adjustColumns(); });
     }
+
+private:
 
     void adjustColumns()
     {

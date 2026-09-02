@@ -153,7 +153,7 @@ service ──→ planner
 服务端 → data_reply    {"ok":true,"data":{...}}
 ```
 
-18 个操作覆盖场景/节点/链路/模板的 CRUD。
+19 个操作覆盖场景/节点/链路/模板的 CRUD。
 
 **批量接口是必需品而非便利方法**：导入场景原本是循环逐条写，
 走协议后每条都是一次网络往返 —— 500 个节点实测 1533.9ms → **26.6ms（57.7 倍）**。
@@ -174,7 +174,7 @@ TXGH/
 │
 ├── protocol/            ★ 两端共享，零第三方依赖
 │   ├── include/thgh/
-│   │   ├── message.h       消息类型 + 字段名 + 18 个操作名
+│   │   ├── message.h       消息类型 + 字段名 + 19 个操作名
 │   │   └── line_framer.h   行分帧器（粘包/半包）
 │   ├── src/                对应实现
 │   └── tests/              35 个单测
@@ -205,7 +205,7 @@ TXGH/
 │   ├── service/            ② 业务编排层
 │   │   ├── message_router.*   按消息类型分发
 │   │   ├── plan_service.*     规划业务（ack/progress/result）
-│   │   ├── data_service.*     数据访问业务（18 个操作）
+│   │   ├── data_service.*     数据访问业务（19 个操作）
 │   │   ├── compute_pool.*     ★ 计算线程池
 │   │   └── json_codec.*       JSON 编解码（不抛异常）
 │   │

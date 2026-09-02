@@ -35,8 +35,9 @@ SimBridge::SimBridge(QObject *parent) : QObject(parent)
             this, &SimBridge::onSocketDisconnected);
     connect(m_socket, &QTcpSocket::readyRead,
             this, &SimBridge::onSocketReadyRead);
-    connect(m_socket,
-            QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error),
+    // Qt5 里 QAbstractSocket::error 既是信号又是同名 getter，必须用 QOverload
+    // 消歧义；Qt6 把信号改名为 errorOccurred，歧义没了，QOverload 也就不需要了。
+    connect(m_socket, &QTcpSocket::errorOccurred,
             this, &SimBridge::onSocketError);
 
     m_retryTimer = new QTimer(this);
